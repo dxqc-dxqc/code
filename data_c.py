@@ -1,24 +1,38 @@
+# Imports
+import pickle
+import random
+
+# Configuration
+class DatasetConfig:
+    def __init__(self):
+        self.users = 1000
+        self.items = 1000
+        self.similarity_types = ['similar_to']
+
+# Data Generator
 class DataGenerator:
-    def generate_dataset(self):
-        # Existing edges_dict construction
-        edges_dict = {
-            ('question', 'asked_by', 'user'),
-            ('question', 'answered_by', 'user'),
-            ('answer', 'in_question', 'question'),
-            ('answer', 'rated_by', 'user'),
-            ('user', 'similar_to', 'user'),
-        }
+    def __init__(self, config):
+        self.config = config
+        self.data = self.generate_data()
 
-        # Add reverse edges
-        reverse_edges = {
-            ('user', 'similar_to', 'user'),  # Bidirectional edge
-            ('user', 'asked_by', 'question'),
-            ('user', 'answered_by', 'question'),
-            ('question', 'in_question', 'answer'),
-            ('user', 'rated_by', 'answer'),
-        }
+    def generate_data(self):
+        # Generate user and item data
+        users = {f'user_{i}': [] for i in range(self.config.users)}
+        items = {f'item_{i}': [] for i in range(self.config.items)}
+        edges = []
 
-        # Update edges_dict with reverse edges
-        edges_dict.update(reverse_edges)
-        
-        return edges_dict
+        # Generate edges
+        for user in users:
+            for i in range(random.randint(0, 10)):
+                item = f'item_{random.randint(0, self.config.items - 1)}'
+                edges.append((user, 'similar_to', item))
+                edges.append((item, 'similar_to', user))  # Reverse edge
+
+        return edges
+
+# Main guard
+if __name__ == '__main__':
+    config = DatasetConfig()
+    generator = DataGenerator(config)
+    with open('hetero_dataset.pkl', 'wb') as f:
+        pickle.dump(generator.data, f)
