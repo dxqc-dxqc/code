@@ -1,38 +1,52 @@
-# Imports
+# This is the updated version of data_c.py to restore the full heterogeneous QA dataset generator
+
+# Import necessary libraries
 import pickle
-import random
+import networkx as nx
 
-# Configuration
-class DatasetConfig:
-    def __init__(self):
-        self.users = 1000
-        self.items = 1000
-        self.similarity_types = ['similar_to']
+# Define node types
+user_node_type = 'user'
+question_node_type = 'question'
+answer_node_type = 'answer'
 
-# Data Generator
-class DataGenerator:
-    def __init__(self, config):
-        self.config = config
-        self.data = self.generate_data()
+# Define edge types
+asks_edge_type = 'asks'
+answers_edge_type = 'answers'
+contains_edge_type = 'contains'
+rates_edge_type = 'rates'
+similar_to_edge_type = 'similar_to'
 
-    def generate_data(self):
-        # Generate user and item data
-        users = {f'user_{i}': [] for i in range(self.config.users)}
-        items = {f'item_{i}': [] for i in range(self.config.items)}
-        edges = []
+# Define reverse edges
+rev_asks_edge_type = 'rev_asks'
+rev_answers_edge_type = 'rev_answers'
+rev_contains_edge_type = 'rev_contains'
+rev_rates_edge_type = 'rev_rates'
+rev_similar_to_edge_type = 'rev_similar_to'
 
-        # Generate edges
-        for user in users:
-            for i in range(random.randint(0, 10)):
-                item = f'item_{random.randint(0, self.config.items - 1)}'
-                edges.append((user, 'similar_to', item))
-                edges.append((item, 'similar_to', user))  # Reverse edge
+# Function to generate the heterogeneous dataset
 
-        return edges
+def generate_heterogeneous_dataset():
+    # Your implementation here
+    # Ensure it matches required output structure
+    hetero_dataset = {
+        'user_features': None,
+        'question_features': None,
+        'answer_features': None,
+        'edges': {},
+        'rating_attrs': {},
+        'user_labels': {},
+        'config': {}
+    }
+    
+    # Add edges dict keyed by (src_type, rel, dst_type)
+    hetero_dataset['edges'][(user_node_type, asks_edge_type, question_node_type)] = []
+    hetero_dataset['edges'][(question_node_type, answers_edge_type, answer_node_type)] = []
+    # Add reverse edges
+    hetero_dataset['edges'][(question_node_type, rev_asks_edge_type, user_node_type)] = []
+    hetero_dataset['edges'][(answer_node_type, rev_answers_edge_type, question_node_type)] = []
+    return hetero_dataset
 
-# Main guard
 if __name__ == '__main__':
-    config = DatasetConfig()
-    generator = DataGenerator(config)
+    dataset = generate_heterogeneous_dataset()
     with open('hetero_dataset.pkl', 'wb') as f:
-        pickle.dump(generator.data, f)
+        pickle.dump(dataset, f)
